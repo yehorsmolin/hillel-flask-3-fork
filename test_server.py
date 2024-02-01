@@ -55,9 +55,9 @@ def test_product_update_invalid_price():
 
 def test_product_update():
     # Update a product
-    response = requests.patch('http://localhost:5001/products/4', json={
+    response = requests.patch('http://localhost:5001/products/40000', json={
         'name': 'Borjomi',
-        'price': -100,
+        'price': 100,
     })
 
     print(response.status_code)
@@ -77,4 +77,4 @@ def test_create_beer():
 
 
 if __name__ == "__main__":
-    test_create_beer()
+    test_product_update()

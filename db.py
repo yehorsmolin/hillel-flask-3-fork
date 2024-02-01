@@ -58,6 +58,11 @@ def get_products(name_filter=None):
     return query
 
 
+def get_product(product_id):
+    # Get product by id
+    return Product.get_by_id(product_id)
+
+
 def create_product(name, price, category_id):
     # Create product and return prudct id
     return Product.create(name=name, price=price, category_id=category_id)
@@ -83,7 +88,9 @@ def update_product(product_id, name, price, category_id):
 
 def delete_product(product_id):
     # Delete product
-    Product.delete().where(Product.id == product_id).execute()
+    product = Product.get_by_id(product_id)
+
+    product.delete_instance()
 
 
 if __name__ == '__main__':

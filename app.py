@@ -1,6 +1,6 @@
 from flask import Flask, request
 
-from db import get_products, create_product, update_product, delete_product
+from db import get_products, create_product, update_product, delete_product, Product, get_product
 from exceptions import ValidationError
 from serializers import serialize_product
 from deserializers import deserialize_product
@@ -37,8 +37,14 @@ def products_api():
         return serialize_product(product), 201
 
 
-@app.route('/products/<int:product_id>', methods=['PUT', 'PATCH', 'DELETE'])
+@app.route('/products/<int:product_id>', methods=['PUT', 'PATCH', 'DELETE', "GET"])
 def product_api(product_id):
+    if request.method == "GET":
+        # Get a product
+        product = get_product(product_id)
+
+        # Return product
+        return serialize_product(product)
     if request.method == "PUT":
         # Update a product
         product = deserialize_product(request.get_json(), product_id)
@@ -60,6 +66,13 @@ def handle_validation_error(e):
     return {
         'error': str(e)
     }, 422
+
+
+@app.errorhandler(Product.DoesNotExist)
+def handle_does_not_exist_error(e):
+    return {
+        'error': 'Product does not exist'
+    }, 404
 
 
 if __name__ == '__main__':
