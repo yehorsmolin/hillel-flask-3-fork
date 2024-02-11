@@ -1,4 +1,4 @@
-from peewee import SqliteDatabase, Model, CharField, FloatField, ForeignKeyField, BooleanField, ManyToManyField
+from peewee import SqliteDatabase, Model, CharField, FloatField, ForeignKeyField, BooleanField, ManyToManyField, DoesNotExist
 import logging
 
 
@@ -19,6 +19,57 @@ class Category(Model):
     class Meta:
         database = db
         table_name = 'categories'
+
+
+#def check_category_exists(category_id):
+        #    try:
+    #category = get_category(category_id)
+        #    except DoesNotExist:
+#       raise DoesNotExist(f"Category does not exist.")
+
+
+def get_categories(name_filter=None):
+    # Get all categories
+    query = Category.select(Category).order_by(-Category.name)
+
+    if name_filter is not None:
+        query = query.where(Category.name == name_filter)
+
+    return query
+
+
+def get_category(category_id):
+    # Get a category by id
+    return Category.get_by_id(category_id)
+
+
+def create_category(name, is_adult_only):
+    # Create category
+    return Category.create(name=name, is_adult_only=is_adult_only)
+
+
+def update_category(category_id, name, is_adult_only):
+    #check_category_exists(category_id)
+    # Update category
+    category = Category.get_by_id(category_id)
+
+    if name is not None:
+        category.name = name
+
+    if is_adult_only is not None:
+        category.is_adult_only = is_adult_only
+
+    category.save()
+
+    return category
+
+
+def delete_category(category_id):
+    #check_category_exists(category_id)
+    # Delete category
+    category = Category.get_by_id(category_id)
+
+    category.delete_instance()
 
 
 class Tag(Model):

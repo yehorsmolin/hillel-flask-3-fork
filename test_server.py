@@ -76,5 +76,42 @@ def test_create_beer():
     print(response.json())
 
 
+def test_category_create():
+    # Create a category
+    response = requests.post('http://localhost:5001/categories', json={
+        'name': 'Beer',
+        'is_adult_only': False,
+    })
+
+    if response.status_code == 500:
+        print('Server error')
+    else:
+        print(response.status_code)
+        print(response.json())
+
+
+def test_category_update():
+    # Update a category
+    response = requests.put(f'http://localhost:5001/categories/2', json={
+        'name': 'COD',
+        'is_adult_only': False,
+    })
+    if response.status_code == 404:
+        print(f'Category does not exist. Status code: {response.status_code}')
+    else:
+        print(response.status_code)
+        print(response.json())
+
+def test_category_delete(category_id):
+    # Delete a category
+    response = requests.delete(f'http://localhost:5001/categories/{category_id}')
+
+    if response.status_code == 500:
+        print('Server error.')
+    else:
+        print(response.status_code)
+        print('Category deleted.')
+
+
 if __name__ == "__main__":
-    test_product_update()
+    test_category_update()

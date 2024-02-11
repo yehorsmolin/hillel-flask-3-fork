@@ -1,9 +1,10 @@
 from flask import Flask, request
 
-from db import get_products, create_product, update_product, delete_product, Product, get_product
+from db import get_products, create_product, update_product, delete_product, Product, get_product, get_categories, \
+get_category, create_category, update_category, delete_category
 from exceptions import ValidationError
-from serializers import serialize_product
-from deserializers import deserialize_product
+from serializers import serialize_product, serialize_category
+from deserializers import deserialize_product, deserialize_category
 
 app = Flask(__name__)
 
@@ -59,6 +60,67 @@ def product_api(product_id):
         delete_product(product_id)
 
         return "", 204
+
+
+@app.route('/categories', methods=['GET', 'POST'])
+def categories_api():
+    if request.method == "GET":
+        name_filter = request.args.get('name')
+        categories = get_categories(name_filter)
+
+        if not categories:
+            return "There are no categories available.", 404
+
+        else:
+            # Convert categories to list of dicts
+            categories_dicts = [
+                serialize_category(category)
+                for category in categories
+            ]
+
+        # Return categories
+        return categories_dicts
+
+    elif request.method == "POST":
+        # Create a category
+        category = deserialize_category(request.get_json())
+
+        # Return success
+        return serialize_category(category), 201
+
+
+@app.route('/categories/<int:category_id>', methods=['PUT', 'PATCH', 'DELETE', "GET"])
+def category_api(category_id):
+    if request.method == "GET":
+        # Get a category by id
+        category = get_category(category_id)
+
+        if not category:
+            return "There is no such category available.", 404
+
+        else:
+            # Return category by id
+            return serialize_category(category), 200
+
+    elif request.method == "PUT":
+        # Update a category
+        category = deserialize_category(request.get_json(), category_id)
+        # Return success
+        return serialize_category(category), 201
+
+    elif request.method == "PATCH":
+        # Update a category
+        category = deserialize_category(request.get_json(), category_id, partial=True)
+        # Return success
+        return serialize_category(category), 200
+
+    elif request.method == "DELETE":
+        delete_category(category_id)
+
+        return "The category was deleted.", 204
+
+    else:
+        return "Method not allowed.", 405
 
 
 @app.errorhandler(ValidationError)
